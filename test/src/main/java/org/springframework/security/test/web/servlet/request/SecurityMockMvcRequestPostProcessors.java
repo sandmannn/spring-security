@@ -283,7 +283,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 * instance may make sense when using MockMvcBuilders standaloneSetup</li>
 	 * </ul>
 	 *
-	 * @param jwt The preliminary constructed jwt {@link Jwt}
+	 * @param jwt The preliminary constructed {@link Jwt}
 	 * @return the {@link JwtRequestPostProcessor} for additional customization
 	 * @since 5.2
 	 */
