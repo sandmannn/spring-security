@@ -17,6 +17,7 @@ package org.springframework.security.test.web.servlet.request;
 
 import javax.servlet.ServletContext;
 
+import org.springframework.beans.Mergeable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -132,7 +133,7 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class FormLoginRequestBuilder implements RequestBuilder {
+	public static final class FormLoginRequestBuilder implements RequestBuilder, Mergeable {
 		private String usernameParam = "username";
 		private String passwordParam = "password";
 		private String username = "user";
@@ -141,6 +142,16 @@ public final class SecurityMockMvcRequestBuilders {
 		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
 
 		private RequestPostProcessor postProcessor = csrf();
+
+		@Override
+		public boolean isMergeEnabled() {
+			return false;
+		}
+
+		@Override
+		public Object merge(Object parent) {
+			return this;
+		}
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
