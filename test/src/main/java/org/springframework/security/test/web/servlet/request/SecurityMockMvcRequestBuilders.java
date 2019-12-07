@@ -23,8 +23,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.RequestBuilder;
+import org.springframework.test.web.servlet.SmartRequestBuilder;
+
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -133,25 +139,40 @@ public final class SecurityMockMvcRequestBuilders {
 	 * @author Rob Winch
 	 * @since 4.0
 	 */
-	public static final class FormLoginRequestBuilder implements RequestBuilder, Mergeable {
+	public static final class FormLoginRequestBuilder implements SmartRequestBuilder, Mergeable {
 		private String usernameParam = "username";
 		private String passwordParam = "password";
 		private String username = "user";
 		private String password = "password";
 		private String loginProcessingUrl = "/login";
 		private MediaType acceptMediaType = MediaType.APPLICATION_FORM_URLENCODED;
+		private final List<RequestPostProcessor> postProcessors = new ArrayList<>();
 
 		private RequestPostProcessor postProcessor = csrf();
 
 		@Override
 		public boolean isMergeEnabled() {
-			return false;
+			return true;
 		}
 
 		@Override
 		public Object merge(Object parent) {
+//			MockHttpServletRequestBuilder parentBuilder = (MockHttpServletRequestBuilder) parent;
+//			should create an interface that allows getting the postprocessors from the parent?
+// 			should extend the smart reuqest builcer?
+			FormLoginRequestBuilder parentBuilder = (FormLoginRequestBuilder) parent;
+			this.postProcessors.addAll(0, parentBuilder.postProcessors);
 			return this;
 		}
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			for (RequestPostProcessor postProcessor : this.postProcessors) {
+				request = postProcessor.postProcessRequest(request);
+			}
+			return request;
+		}
+
 
 		@Override
 		public MockHttpServletRequest buildRequest(ServletContext servletContext) {
